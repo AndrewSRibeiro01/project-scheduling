@@ -1,22 +1,21 @@
 "use client";
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { MdDeleteForever } from "react-icons/md";
+import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 
 interface Agendamento {
-  nome: string;
-  data: string;
+  _id?: string;
+  name: string;
+  date: string;
   hora: string;
-  local: string;
-  icon: React.ReactNode;
+  location: string;
 }
 
 const SchedulingForm: React.FC = () => {
   const [agendamento, setAgendamento] = useState<Agendamento>({
-    nome: '',
-    data: '',
+    _id: '',
+    name: '',
+    date: '',
     hora: '',
-    local: '',
-    icon: <MdDeleteForever style={{ cursor: "pointer" }} />
+    location: '',
   });
 
   const [dataSource, setDataSource] = useState<Agendamento[]>([]);
@@ -29,23 +28,74 @@ const SchedulingForm: React.FC = () => {
     }));
   };
 
+  const handleDelete = (id) => {
+    fetch(`http://localhost:5001/appointments/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then(() => { handleGetItems() })
+  }
+
+  const handleGetItems = () => {
+    fetch("http://localhost:5001/appointments", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data: DataType[]) => {
+        setDataSource(() => [...data]);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar os dados:", error);
+      });
+  }
+
+  interface DataType {
+    _id: string;
+    name: string;
+    date: string;
+    hora: string;
+    location: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  }
+
+  useEffect(() => {
+    fetch("http://localhost:5001/appointments", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data: DataType[]) => {
+        setDataSource(() => [...data]);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar os dados:", error);
+      });
+  }, []);
+
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (agendamento.nome && agendamento.data && agendamento.hora && agendamento.local) {
+    if (agendamento.name && agendamento.date && agendamento.hora && agendamento.location) {
       try {
-        // const response = await fetch("http://localhost:3000", {
-        //   method: "POST",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        //   body: JSON.stringify(agendamento),
-        // });
-
-        setDataSource((prevDataSource) => [...prevDataSource, agendamento]);
-
+        await fetch("http://localhost:5001/appointments", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(agendamento),
+        });
+        handleGetItems()
         setAgendamento({
-          nome: '', data: '', hora: '', local: '', icon: "MdDeleteForever"
+          name: '', date: '', hora: '', location: '',
         });
       } catch (error) {
         console.error("Erro:", error);
@@ -72,8 +122,8 @@ const SchedulingForm: React.FC = () => {
               <label>Nome: </label>
               <input
                 type="text"
-                name="nome"
-                value={agendamento.nome}
+                name="name"
+                value={agendamento.name}
                 onChange={handleChange}
                 required
               />
@@ -82,8 +132,8 @@ const SchedulingForm: React.FC = () => {
               <label>Data: </label>
               <input
                 type="date"
-                name="data"
-                value={agendamento.data}
+                name="date"
+                value={agendamento.date}
                 onChange={handleChange}
                 required
               />
@@ -102,8 +152,8 @@ const SchedulingForm: React.FC = () => {
               <label>Local: </label>
               <input
                 type="text"
-                name="local"
-                value={agendamento.local}
+                name="location"
+                value={agendamento.location}
                 onChange={handleChange}
                 required
               />
@@ -138,17 +188,17 @@ const SchedulingForm: React.FC = () => {
             <tbody>
               {dataSource.map((agendamento, index) => (
                 <tr key={index}>
-                  <td style={tableHeaderStyle}>{agendamento.nome}</td>
-                  <td style={tableHeaderStyle}>{agendamento.data}</td>
+                  <td style={tableHeaderStyle}>{agendamento.name}</td>
+                  <td style={tableHeaderStyle}>{agendamento.date}</td>
                   <td style={tableHeaderStyle}>{agendamento.hora}</td>
-                  <td style={tableHeaderStyle}>{agendamento.local}</td>
-                  <td style={tableHeaderStyle}>{agendamento.icon}</td>
+                  <td style={tableHeaderStyle}>{agendamento.location}</td>
+                  <td style={tableHeaderStyle}><button onClick={() => handleDelete(agendamento._id)}>deletar</button></td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-      </div>
+        </div >
+      </div >
     </>
   );
 };
