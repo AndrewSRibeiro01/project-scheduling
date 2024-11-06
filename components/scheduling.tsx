@@ -1,13 +1,14 @@
 "use client";
 import { useSnackbar } from 'notistack';
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdEdit } from "react-icons/md";
+import { ActionContainer, ActionIcon, Button, Container, Form, FormContainer, FormGroup, Input, Table, TableCell, TableContainer, TableHeader, TableRow } from './styles';
 
 interface Agendamento {
   _id?: string;
   name: string;
   date: string;
-  hora: string;
+  time?: string;
   location: string;
 }
 
@@ -16,12 +17,11 @@ const SchedulingForm: React.FC = () => {
     _id: '',
     name: '',
     date: '',
-    hora: '',
+    time: "14:00",
     location: '',
   });
 
-  const { enqueueSnackbar } = useSnackbar()
-
+  const { enqueueSnackbar } = useSnackbar();
   const [dataSource, setDataSource] = useState<Agendamento[]>([]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -32,15 +32,25 @@ const SchedulingForm: React.FC = () => {
     }));
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id: string) => {
     fetch(`http://localhost:5001/appointments/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
-    }).then(() => { handleGetItems() })
-    enqueueSnackbar('Agendamento deletado!', { variant: 'error' })
-  }
+    }).then(() => { handleGetItems() });
+    enqueueSnackbar('Agendamento deletado!', { variant: 'error' });
+  };
+
+  const handlePut = (id: string) => {
+    fetch(`http://localhost:5001/appointments/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then(() => { handleGetItems() });
+    enqueueSnackbar('Agendamento atualizado!', { variant: 'error' });
+  };
 
   const handleGetItems = () => {
     fetch("http://localhost:5001/appointments", {
@@ -54,16 +64,15 @@ const SchedulingForm: React.FC = () => {
         setDataSource(() => [...data]);
       })
       .catch((error) => {
-        console.error("Erro ao buscar os dados:", error);
-        enqueueSnackbar(`Erro ao buscar os dados: ${error}`, { variant: 'error' })
+        enqueueSnackbar(`Erro ao buscar os dados: ${error}`, { variant: 'error' });
       });
-  }
+  };
 
   interface DataType {
     _id: string;
     name: string;
     date: string;
-    hora: string;
+    time: string;
     location: string;
     createdAt: string;
     updatedAt: string;
@@ -86,11 +95,10 @@ const SchedulingForm: React.FC = () => {
       });
   }, []);
 
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (agendamento.name && agendamento.date && agendamento.hora && agendamento.location) {
+    if (agendamento.name && agendamento.date && agendamento.time && agendamento.location) {
       try {
         await fetch("http://localhost:5001/appointments", {
           method: "POST",
@@ -99,11 +107,12 @@ const SchedulingForm: React.FC = () => {
           },
           body: JSON.stringify(agendamento),
         });
-        handleGetItems()
+        handleGetItems();
         setAgendamento({
-          name: '', date: '', hora: '', location: '',
+          name: '', date: '', time: '', location: '',
         });
-        enqueueSnackbar('Agendamento feito com sucesso!', { variant: 'success' })
+        console.log(agendamento)
+        enqueueSnackbar('Agendamento feito com sucesso!', { variant: 'success' });
       } catch (error) {
         console.error("Erro:", error);
       }
@@ -113,118 +122,88 @@ const SchedulingForm: React.FC = () => {
   };
 
   return (
-    <>
-      <div>
-        <div style={{ display: "flex", marginTop: "20px", justifyContent: "center" }}>
-          <form
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "17px",
-              margin: "15px 15px",
-            }}
-            onSubmit={handleSubmit}
-          >
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <label>Nome: </label>
-              <input style={{ width: "50%", height: "25px" }}
-                type="text"
-                name="name"
-                value={agendamento.name}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div>
-              <label>Data: </label>
-              <input style={{ width: "50%", height: "25px" }}
-                type="date"
-                name="date"
-                value={agendamento.date}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div>
-              <label>Hora: </label>
-              <input
-                type="time"
-                name="hora"
-                value={agendamento.hora}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div>
-              <label>Local: </label>
-              <input style={{ width: "50%", height: "25px" }}
-                type="text"
-                name="location"
-                value={agendamento.location}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <button
-              style={{
-                height: "30px",
-                fontWeight: 500,
-                cursor: 'pointer',
-              }}
-              type="submit"
-            >
-              Agendar
-            </button>
-          </form>
-        </div>
-        <div
-          style={{
-            marginTop: "20px", display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: "center", width: "70%", margin: "0 auto"
-          }}>
-          <h3>Agendamentos</h3>
-          <table style={{ width: "100%", textAlign: "left" }}>
-            <thead>
-              <tr>
-                <th style={tableCellStyle}>Nome</th>
-                <th style={tableCellStyle}>Data</th>
-                <th style={tableCellStyle}>Hora</th>
-                <th style={tableCellStyle}>Local</th>
-                <th style={tableCellStyle} />
-              </tr>
-            </thead>
-            <tbody>
-              {dataSource.map((agendamento, index) => (
-                <tr key={index}>
-                  <td style={tableHeaderStyle}>{agendamento.name}</td>
-                  <td style={tableHeaderStyle}>{agendamento.date}</td>
-                  <td style={tableHeaderStyle}>{agendamento.hora}</td>
-                  <td style={tableHeaderStyle}>{agendamento.location}</td>
-                  <td style={tableHeaderStyle}><div style={{ cursor: "pointer" }} onClick={() => { handleDelete(agendamento._id) }}><MdDelete />
-                  </div></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div >
-      </div >
-    </>
+    <Container>
+      <FormContainer>
+        <Form onSubmit={handleSubmit}>
+          <FormGroup>
+            <label>Nome: </label>
+            <Input
+              type="text"
+              name="name"
+              value={agendamento.name}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <label>Data: </label>
+            <Input
+              type="date"
+              name="date"
+              value={agendamento.date}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <label>Hora: </label>
+            <Input
+              type="time"
+              name="time"
+              value={agendamento.time}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <label>Local: </label>
+            <Input
+              type="text"
+              name="location"
+              value={agendamento.location}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <Button type="submit">Agendar</Button>
+        </Form>
+      </FormContainer>
+      <TableContainer>
+        <h3>Agendamentos</h3>
+        <Table>
+          <thead>
+            <tr>
+              <TableHeader>Nome</TableHeader>
+              <TableHeader>Data</TableHeader>
+              <TableHeader>Hora</TableHeader>
+              <TableHeader>Local</TableHeader>
+              <TableHeader />
+            </tr>
+          </thead>
+          <tbody>
+            {dataSource.map((agendamento, index) => (
+              <TableRow key={index}>
+                <TableCell>{agendamento.name}</TableCell>
+                <TableCell>{agendamento.date}</TableCell>
+                <TableCell>{agendamento.time}</TableCell>
+                <TableCell>{agendamento.location}</TableCell>
+                <TableCell>
+                  <ActionContainer>
+                    <ActionIcon onClick={() => { handleDelete(agendamento._id) }}>
+                      <MdDelete />
+                    </ActionIcon>
+                    <ActionIcon onClick={() => { handlePut(agendamento._id) }}>
+                      <MdEdit />
+                    </ActionIcon>
+                  </ActionContainer>
+                </TableCell>
+              </TableRow>
+            ))}
+          </tbody>
+        </Table>
+      </TableContainer>
+    </Container>
   );
-};
-
-const tableHeaderStyle = {
-  padding: "10px",
-  backgroundColor: "#fff",
-  borderBottom: "2px solid #000000",
-  borderRight: "2px solid #000000",
-  borderLeft: "2px solid #000000",
-
-};
-
-const tableCellStyle = {
-  background: "#FFF",
-  borderBottom: "2px solid #000000",
-  color: "#000",
-  padding: "8px",
 };
 
 export default SchedulingForm;
