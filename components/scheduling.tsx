@@ -1,5 +1,7 @@
 "use client";
+import { useSnackbar } from 'notistack';
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
+import { MdDelete } from "react-icons/md";
 
 interface Agendamento {
   _id?: string;
@@ -18,6 +20,8 @@ const SchedulingForm: React.FC = () => {
     location: '',
   });
 
+  const { enqueueSnackbar } = useSnackbar()
+
   const [dataSource, setDataSource] = useState<Agendamento[]>([]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -35,6 +39,7 @@ const SchedulingForm: React.FC = () => {
         "Content-Type": "application/json",
       },
     }).then(() => { handleGetItems() })
+    enqueueSnackbar('Agendamento deletado!', { variant: 'error' })
   }
 
   const handleGetItems = () => {
@@ -50,6 +55,7 @@ const SchedulingForm: React.FC = () => {
       })
       .catch((error) => {
         console.error("Erro ao buscar os dados:", error);
+        enqueueSnackbar(`Erro ao buscar os dados: ${error}`, { variant: 'error' })
       });
   }
 
@@ -97,6 +103,7 @@ const SchedulingForm: React.FC = () => {
         setAgendamento({
           name: '', date: '', hora: '', location: '',
         });
+        enqueueSnackbar('Agendamento feito com sucesso!', { variant: 'success' })
       } catch (error) {
         console.error("Erro:", error);
       }
@@ -108,19 +115,19 @@ const SchedulingForm: React.FC = () => {
   return (
     <>
       <div>
-        <div style={{ display: "flex", marginTop: "20px" }}>
+        <div style={{ display: "flex", marginTop: "20px", justifyContent: "center" }}>
           <form
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: "15px",
+              gap: "17px",
               margin: "15px 15px",
             }}
             onSubmit={handleSubmit}
           >
             <div style={{ display: "flex", alignItems: "center" }}>
               <label>Nome: </label>
-              <input
+              <input style={{ width: "50%", height: "25px" }}
                 type="text"
                 name="name"
                 value={agendamento.name}
@@ -130,7 +137,7 @@ const SchedulingForm: React.FC = () => {
             </div>
             <div>
               <label>Data: </label>
-              <input
+              <input style={{ width: "50%", height: "25px" }}
                 type="date"
                 name="date"
                 value={agendamento.date}
@@ -150,7 +157,7 @@ const SchedulingForm: React.FC = () => {
             </div>
             <div>
               <label>Local: </label>
-              <input
+              <input style={{ width: "50%", height: "25px" }}
                 type="text"
                 name="location"
                 value={agendamento.location}
@@ -162,7 +169,6 @@ const SchedulingForm: React.FC = () => {
               style={{
                 height: "30px",
                 fontWeight: 500,
-                borderRadius: "15px",
                 cursor: 'pointer',
               }}
               type="submit"
@@ -173,16 +179,17 @@ const SchedulingForm: React.FC = () => {
         </div>
         <div
           style={{
-            marginTop: "20px", display: 'flex', flexDirection: 'column', alignItems: 'center', width: "70%", margin: "0 auto"
+            marginTop: "20px", display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: "center", width: "70%", margin: "0 auto"
           }}>
           <h3>Agendamentos</h3>
-          <table style={{ width: "100%", borderRight: "2px solid black", textAlign: "left" }}>
+          <table style={{ width: "100%", textAlign: "left" }}>
             <thead>
               <tr>
                 <th style={tableCellStyle}>Nome</th>
                 <th style={tableCellStyle}>Data</th>
                 <th style={tableCellStyle}>Hora</th>
                 <th style={tableCellStyle}>Local</th>
+                <th style={tableCellStyle} />
               </tr>
             </thead>
             <tbody>
@@ -192,7 +199,8 @@ const SchedulingForm: React.FC = () => {
                   <td style={tableHeaderStyle}>{agendamento.date}</td>
                   <td style={tableHeaderStyle}>{agendamento.hora}</td>
                   <td style={tableHeaderStyle}>{agendamento.location}</td>
-                  <td style={tableHeaderStyle}><button onClick={() => handleDelete(agendamento._id)}>deletar</button></td>
+                  <td style={tableHeaderStyle}><div style={{ cursor: "pointer" }} onClick={() => { handleDelete(agendamento._id) }}><MdDelete />
+                  </div></td>
                 </tr>
               ))}
             </tbody>
@@ -205,15 +213,18 @@ const SchedulingForm: React.FC = () => {
 
 const tableHeaderStyle = {
   padding: "10px",
-  backgroundColor: "#acacac",
+  backgroundColor: "#fff",
   borderBottom: "2px solid #000000",
+  borderRight: "2px solid #000000",
+  borderLeft: "2px solid #000000",
+
 };
 
 const tableCellStyle = {
-  background: "#828282",
+  background: "#FFF",
+  borderBottom: "2px solid #000000",
   color: "#000",
   padding: "8px",
-  borderBottom: "1px solid #000000",
 };
 
 export default SchedulingForm;
