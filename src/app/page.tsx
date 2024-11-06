@@ -1,8 +1,8 @@
-"use client"
+"use client";
 import Head from 'next/head';
 import SchedulingForm from '../../components/scheduling';
-import { SnackbarProvider } from 'notistack'
-
+import { SnackbarProvider } from 'notistack';
+import { Header, Main, SubTitle } from '../../components/styles';
 
 const Home: React.FC = () => {
   return (
@@ -12,16 +12,14 @@ const Home: React.FC = () => {
         <meta name="description" content="Aplicação de agendamento" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main>
-        <div style={{
-          background: 'linear-gradient( #7c7c7c, #FAFAFA)', width: '100%', height: '60px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#000', marginBottom: '15px'
-        }}>
+      <Main>
+        <Header>
           <h1>Agendamento</h1>
-        </div>
-        <h3 style={{ display: "flex", justifyContent: 'center', alignItems: 'center' }}>Preencha todos os campos</h3>
+        </Header>
+        <SubTitle>Preencha todos os campos</SubTitle>
         <SchedulingForm />
-      </main>
-    </SnackbarProvider >
+      </Main>
+    </SnackbarProvider>
   );
 };
 

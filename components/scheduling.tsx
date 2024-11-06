@@ -1,14 +1,14 @@
 "use client";
-import { useSnackbar } from 'notistack';
+import { ActionContainer, ActionIcon, Button, Container, Form, FormContainer, FormGroup, Input, Table, TableCell, TableContainer, TableHeader, TableRow } from './styles';
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { MdDelete, MdEdit } from "react-icons/md";
-import { ActionContainer, ActionIcon, Button, Container, Form, FormContainer, FormGroup, Input, Table, TableCell, TableContainer, TableHeader, TableRow } from './styles';
+import { useSnackbar } from 'notistack';
 
 interface Agendamento {
   _id?: string;
   name: string;
   date: string;
-  time?: string;
+  time: string;
   location: string;
 }
 
@@ -17,7 +17,7 @@ const SchedulingForm: React.FC = () => {
     _id: '',
     name: '',
     date: '',
-    time: "14:00",
+    time: '',
     location: '',
   });
 
@@ -49,7 +49,7 @@ const SchedulingForm: React.FC = () => {
         "Content-Type": "application/json",
       },
     }).then(() => { handleGetItems() });
-    enqueueSnackbar('Agendamento atualizado!', { variant: 'error' });
+    enqueueSnackbar('Agendamento atualizado!', { variant: 'success' });
   };
 
   const handleGetItems = () => {

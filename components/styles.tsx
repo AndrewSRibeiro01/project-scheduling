@@ -42,21 +42,18 @@ export const TableContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 70%;
   margin: 0 auto;
 `;
 
 export const Table = styled.table`
   width: 100%;
-  text-align: left;
+  text-align: center;
 `;
 
 export const TableHeader = styled.th`
   padding: 10px;
   background-color: #fff;
   border-bottom: 2px solid #000000;
-  border-right: 2px solid #000000;
-  border-left: 2px solid #000000;
 `;
 
 export const TableCell = styled.td`
@@ -80,4 +77,28 @@ export const ActionContainer = styled.div`
 export const ActionIcon = styled.div`
   cursor: pointer;
   margin: 0 5px;
+`;
+
+export const Main = styled.main`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+`;
+
+export const Header = styled.div`
+  background: linear-gradient(#7c7c7c, #fafafa);
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #000;
+  margin-bottom: 15px;
+`;
+
+export const SubTitle = styled.h3`
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
