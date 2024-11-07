@@ -26,7 +26,7 @@ export const FormGroup = styled.div`
 `;
 
 export const Input = styled.input`
-  width: 50%;
+  width: 100%;
   height: 25px;
 `;
 
