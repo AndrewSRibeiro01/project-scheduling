@@ -3,12 +3,12 @@ import { ActionContainer, ActionIcon, Button, Container, Form, FormContainer, Fo
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { MdDelete, MdEdit } from "react-icons/md";
 import { useSnackbar } from 'notistack';
+import dayjs from 'dayjs';
 
 interface Agendamento {
   _id?: string;
   name: string;
   date: string;
-  time: string;
   location: string;
 }
 
@@ -17,7 +17,6 @@ const SchedulingForm: React.FC = () => {
     _id: '',
     name: '',
     date: '',
-    time: '',
     location: '',
   });
 
@@ -29,6 +28,18 @@ const SchedulingForm: React.FC = () => {
     setAgendamento((prevAgendamento) => ({
       ...prevAgendamento,
       [name]: value,
+    }));
+  };
+
+  const handleChangeUpdate = (value: Agendamento) => {
+    setAgendamento(value);
+    console.log(value)
+  };
+
+  const handleChangeSelect = (e: ChangeEvent<HTMLSelectElement>) => {
+    setAgendamento((prevAgendamento) => ({
+      ...prevAgendamento,
+      location: e.target.value
     }));
   };
 
@@ -48,6 +59,7 @@ const SchedulingForm: React.FC = () => {
       headers: {
         "Content-Type": "application/json",
       },
+      body: JSON.stringify(agendamento)
     }).then(() => { handleGetItems() });
     enqueueSnackbar('Agendamento atualizado!', { variant: 'success' });
   };
@@ -61,7 +73,7 @@ const SchedulingForm: React.FC = () => {
     })
       .then((response) => response.json())
       .then((data: DataType[]) => {
-        setDataSource(() => [...data]);
+        setDataSource(() => data);
       })
       .catch((error) => {
         enqueueSnackbar(`Erro ao buscar os dados: ${error}`, { variant: 'error' });
@@ -72,7 +84,6 @@ const SchedulingForm: React.FC = () => {
     _id: string;
     name: string;
     date: string;
-    time: string;
     location: string;
     createdAt: string;
     updatedAt: string;
@@ -88,36 +99,42 @@ const SchedulingForm: React.FC = () => {
     })
       .then((response) => response.json())
       .then((data: DataType[]) => {
-        setDataSource(() => [...data]);
+        setDataSource(() => data);
       })
       .catch((error) => {
-        console.error("Erro ao buscar os dados:", error);
+        console.log("Erro ao buscar os dados:", error);
       });
   }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
-    if (agendamento.name && agendamento.date && agendamento.time && agendamento.location) {
+    console.log(agendamento)
+    if (agendamento._id) {
+      handlePut(agendamento._id)
+    } else if (agendamento.name && agendamento.date && agendamento.location) {
       try {
-        await fetch("http://localhost:5001/appointments", {
+        const response = await fetch("http://localhost:5001/appointments", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(agendamento),
         });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Erro ao criar agendamento');
+        }
+
         handleGetItems();
         setAgendamento({
-          name: '', date: '', time: '', location: '',
+          name: '', date: '', location: '',
         });
-        console.log(agendamento)
+
         enqueueSnackbar('Agendamento feito com sucesso!', { variant: 'success' });
       } catch (error) {
-        console.error("Erro:", error);
+        enqueueSnackbar(`${error.message}`, { variant: 'error' });
       }
-    } else {
-      alert("Por favor, preencha todos os campos obrigatórios.");
     }
   };
 
@@ -138,32 +155,22 @@ const SchedulingForm: React.FC = () => {
           <FormGroup>
             <label>Data: </label>
             <Input
-              type="date"
+              type="datetime-local"
               name="date"
-              value={agendamento.date}
-              onChange={handleChange}
-              required
-            />
-          </FormGroup>
-          <FormGroup>
-            <label>Hora: </label>
-            <Input
-              type="time"
-              name="time"
-              value={agendamento.time}
+              value={dayjs(agendamento.date).format("YYYY-MM-DDTHH:mm")}
               onChange={handleChange}
               required
             />
           </FormGroup>
           <FormGroup>
             <label>Local: </label>
-            <Input
-              type="text"
-              name="location"
-              value={agendamento.location}
-              onChange={handleChange}
-              required
-            />
+            <select value={agendamento.location} required onChange={handleChangeSelect} name="location" id='city'>
+              <option></option>
+              <option value="Guarulhos">Guarulhos</option>
+              <option value="São paulo">São paulo</option>
+              <option value="Arujá">Arujá</option>
+              <option value="Mato Grosso do Sul">Mato Grosso do Sul</option>
+            </select>
           </FormGroup>
           <Button type="submit">Agendar</Button>
         </Form>
@@ -175,7 +182,6 @@ const SchedulingForm: React.FC = () => {
             <tr>
               <TableHeader>Nome</TableHeader>
               <TableHeader>Data</TableHeader>
-              <TableHeader>Hora</TableHeader>
               <TableHeader>Local</TableHeader>
               <TableHeader />
             </tr>
@@ -184,15 +190,14 @@ const SchedulingForm: React.FC = () => {
             {dataSource.map((agendamento, index) => (
               <TableRow key={index}>
                 <TableCell>{agendamento.name}</TableCell>
-                <TableCell>{agendamento.date}</TableCell>
-                <TableCell>{agendamento.time}</TableCell>
+                <TableCell>{dayjs(agendamento.date).format("DD/MM/YYYY - HH:mm")}</TableCell>
                 <TableCell>{agendamento.location}</TableCell>
                 <TableCell>
                   <ActionContainer>
                     <ActionIcon onClick={() => { handleDelete(agendamento._id) }}>
                       <MdDelete />
                     </ActionIcon>
-                    <ActionIcon onClick={() => { handlePut(agendamento._id) }}>
+                    <ActionIcon onClick={() => { handleChangeUpdate(agendamento) }}>
                       <MdEdit />
                     </ActionIcon>
                   </ActionContainer>
