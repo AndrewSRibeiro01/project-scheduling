@@ -54,15 +54,29 @@ const SchedulingForm: React.FC = () => {
   };
 
   const handlePut = (id: string) => {
-    fetch(`http://localhost:5001/appointments/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(agendamento)
-    }).then(() => { handleGetItems() });
-    enqueueSnackbar('Agendamento atualizado!', { variant: 'success' });
+    try {
+      fetch(`http://localhost:5001/appointments/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(agendamento)
+      }).then(async (response: any) => {
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          throw new Error(responseData.message);
+        }
+        handleGetItems();
+        enqueueSnackbar('Agendamento atualizado!', { variant: 'success' });
+      }).catch((error) => {
+        enqueueSnackbar(`${error.message}`, { variant: 'error' });
+      });
+    } catch (error) {
+      enqueueSnackbar(`${error.message}`, { variant: 'error' });
+    }
   };
+
 
   const handleGetItems = () => {
     fetch("http://localhost:5001/appointments", {
@@ -108,7 +122,6 @@ const SchedulingForm: React.FC = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log(agendamento)
     if (agendamento._id) {
       handlePut(agendamento._id)
     } else if (agendamento.name && agendamento.date && agendamento.location) {
