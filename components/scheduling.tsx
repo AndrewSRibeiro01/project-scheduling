@@ -68,7 +68,11 @@ const SchedulingForm: React.FC = () => {
           throw new Error(responseData.message);
         }
         handleGetItems();
+        setAgendamento({
+          name: '', date: '', location: '',
+        });
         enqueueSnackbar('Agendamento atualizado!', { variant: 'success' });
+
       }).catch((error) => {
         enqueueSnackbar(`${error.message}`, { variant: 'error' });
       });
