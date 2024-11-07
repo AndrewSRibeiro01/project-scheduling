@@ -44,7 +44,7 @@ const SchedulingForm: React.FC = () => {
   };
 
   const handleDelete = (id: string) => {
-    fetch(`https://54.211.160.55/appointments/${id}`, {
+    fetch(`https://andrew.integraja.com.br/appointments/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -55,7 +55,7 @@ const SchedulingForm: React.FC = () => {
 
   const handlePut = (id: string) => {
     try {
-      fetch(`https://54.211.160.55/appointments/${id}`, {
+      fetch(`https://andrew.integraja.com.br/appointments/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -87,7 +87,7 @@ const SchedulingForm: React.FC = () => {
 
 
   const handleGetItems = () => {
-    fetch("https://54.211.160.55/appointments", {
+    fetch("https://andrew.integraja.com.br/appointments", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -113,7 +113,7 @@ const SchedulingForm: React.FC = () => {
   }
 
   useEffect(() => {
-    fetch("https://54.211.160.55/appointments", {
+    fetch("https://andrew.integraja.com.br/appointments", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -134,7 +134,7 @@ const SchedulingForm: React.FC = () => {
       handlePut(agendamento._id)
     } else if (agendamento.name && agendamento.date && agendamento.location) {
       try {
-        const response = await fetch("https://54.211.160.55/appointments", {
+        const response = await fetch("https://andrew.integraja.com.br/appointments", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
