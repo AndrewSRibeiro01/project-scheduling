@@ -60,26 +60,30 @@ const SchedulingForm: React.FC = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(agendamento)
-      }).then(async (response: any) => {
-        const responseData = await response.json();
-
-        if (!response.ok) {
-          throw new Error(responseData.message);
-        }
-        handleGetItems();
-        setAgendamento({
-          name: '', date: '', location: '',
+        body: JSON.stringify(agendamento),
+      })
+        .then(async (response: Response) => {
+          const responseData = await response.json();
+  
+          if (!response.ok) {
+            throw new Error(responseData.message);
+          }
+          handleGetItems();
+          setAgendamento({
+            name: '',
+            date: '',
+            location: '',
+          });
+          enqueueSnackbar('Agendamento atualizado!', { variant: 'success' });
+        })
+        .catch((error: Error) => {
+          enqueueSnackbar(`${error.message}`, { variant: 'error' });
         });
-        enqueueSnackbar('Agendamento atualizado!', { variant: 'success' });
-
-      }).catch((error) => {
-        enqueueSnackbar(`${error.message}`, { variant: 'error' });
-      });
     } catch (error) {
       enqueueSnackbar(`${error.message}`, { variant: 'error' });
     }
   };
+  
 
 
   const handleGetItems = () => {
